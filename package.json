@@ -1,0 +1,13 @@
+{
+    "schema_version": "1.2",
+    "renamed_packages": { "sublime-better-typescript": "Better TypeScript" },
+    "packages": [
+        {
+            "name": "Better TypeScript",
+            "description": "Syntax highlighting and checking, commands, shortcuts, snippets, watched compilation and more.",
+            "author": "lavrton",
+            "homepage": "https://github.com/lavrton/sublime-better-typescript",
+            "last_modified": "2013-05-26 05:04:41",
+        }
+    ]
+}
