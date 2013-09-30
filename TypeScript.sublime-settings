@@ -9,17 +9,10 @@
 	*/
 	"envPATH": "",
 	/*
-		The directory containing your coffee binary. Usually
+		The directory containing your tsc binary. Usually
 		/usr/local/bin or /usr/bin.
 	*/
 	"binDir": "/usr/bin"
-
-	/*
-		Compile without the top-level function wrapper (coffee -b).
-	*/
-
-// ,	"noWrapper": true
-
 	/*
 		Enable or disable refresh the compiled Output on Save.
 		Only available for watch mode.
@@ -35,17 +28,13 @@
 	/*
 		Enable Compiling on save. It will compile into the same folder.
 	*/
-,	"compileOnSave": true
-	/*
-		## Enable outputting the results of the compiled coffeescript in a panel
-	*/
-,	"showOutputOnSave": false
+,	"compileOnSave": false
 	/*
 		## Enable compiling to a specific directory.
 		#### Description
 
-		if it is a string like 'some/directory' then `-o some/directory` will be added to `coffee` compiler.
-		if it is false or not string then it will compile your `script.coffee` to the directory it is in.
+		if it is a string like 'some/directory' then `-o some/directory` will be added to `tsc` compiler.
+		if it is false or not string then it will compile your `script.tsc` to the directory it is in.
 
 		#### Example:
 		Directory is relative to the file you are editing if specified such as
@@ -62,29 +51,27 @@
 		Set absolute path for compile dir:
 			"compileDir": "/home/user/projects/js"
 		And specified folders
-			"relativeDir": "/home/user/projects/coffee"
+			"relativeDir": "/home/user/projects/tsc"
 			"compilePaths":
 			{
-				"/home/user/projects/coffee": "/home/user/projects/first/js",
-				"/home/user/projects/second/coffee": "../js",
+				"/home/user/projects/tsc": "/home/user/projects/first/js",
+				"/home/user/projects/second/tsc": "../js",
 			}
 
 		So
-			"/home/user/projects/coffee/app.coffee" will compile to "/home/user/projects/first/js/app.js"
-			"/home/user/projects/coffee/models/prod.coffee" will compile to "/home/user/projects/first/js/models/prod.js"
-			"/home/user/projects/coffee/second/coffee/app2.coffee" will compile to "/home/user/projects/second/js/app2.js"
-			"/home/user/projects/main.coffee" will compile to "/home/user/projects/js/main.js"
+			"/home/user/projects/tsc/app.tsc" will compile to "/home/user/projects/first/js/app.js"
+			"/home/user/projects/tsc/models/prod.tsc" will compile to "/home/user/projects/first/js/models/prod.js"
+			"/home/user/projects/tsc/second/tsc/app2.tsc" will compile to "/home/user/projects/second/js/app2.js"
+			"/home/user/projects/main.tsc" will compile to "/home/user/projects/js/main.js"
 
 	*/
 ,	"compilePaths": false
 
 	/*
 		## Enable source maps support
-  		CoffeeScript 1.6.1 and above include support for better coffeescript debugging.
-  		Browsers that support it can trace your bugs to your original coffeescript source code,
+  		CoffeeScript 1.6.1 and above include support for better tscscript debugging.
+  		Browsers that support it can trace your bugs to your original tscscript source code,
   		instead of the javascript that's being evaluated
 	*/
 , "sourceMaps":false
-
-
 }

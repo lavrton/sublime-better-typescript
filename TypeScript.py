@@ -67,6 +67,7 @@ def _run(cmd, args=[], source="", cwd=None, env=None):
         customEnv = settings_get('envPATH', "")
         if customEnv:
             env["PATH"] = env["PATH"]+":"+customEnv
+        args += ["--module", settings_get("module")]
         if source == "":
             command = [cmd] + args
         else:
@@ -124,6 +125,17 @@ class CompileCodeCommand(TextCommand):
     def is_enabled(self):
         return isTypescript(self.view)
 
+    def on_done(self, result):
+        if result['okay'] is True:
+            status = 'Compilation Succeeded'
+        else:
+            errorFirstLine = result['err'].splitlines()[0]
+            status = 'Compilation FAILED ' + errorFirstLine
+            sublime.error_message(errorFirstLine)
+
+        later = lambda: sublime.status_message(status)
+        sublime.set_timeout(later, 300)
+
     def run(self, *args, **kwargs):
         # no_wrapper = settings_get('noWrapper', True)
         compile_dir = settings_get('compileDir')
@@ -133,8 +145,6 @@ class CompileCodeCommand(TextCommand):
         sourcemaps = settings_get('sourceMaps', True)
 
         args = ['-c', source_file]
-        # if no_wrapper:
-        #     args = ['-b'] + args
         if sourcemaps:
             args = ['--sourcemap'] + args
 
@@ -170,54 +180,63 @@ class CompileCodeCommand(TextCommand):
             cwd = source_dir
         else:
             cwd = None
-        result = run("tsc", args=args, cwd=cwd)
+        run("tsc", args, cwd=cwd, callback=lambda res: self.on_done(res))
+        # resulrun("tsc", args=args, cwd=cwd)
 
-        if result['okay'] is True:
-            status = 'Compilation Succeeded'
-        else:
-            errorFirstLine = result['err'].splitlines()[0]
-            status = 'Compilation FAILED ' + errorFirstLine
-            sublime.error_message(errorFirstLine)
+        # if result['okay'] is True:
+        #     status = 'Compilation Succeeded'
+        # else:
+        #     errorFirstLine = result['err'].splitlines()[0]
+        #     status = 'Compilation FAILED ' + errorFirstLine
+        #     sublime.error_message(errorFirstLine)
 
-        later = lambda: sublime.status_message(status)
-        sublime.set_timeout(later, 300)
+        # later = lambda: sublime.status_message(status)
+        # sublime.set_timeout(later, 300)
 
 
 class CompileAndDisplayCodeCommand(TextCommand):
     def is_enabled(self):
         return isTypescript(self.view)
 
-    def run(self, edit, **kwargs):
-        no_wrapper = settings_get('noWrapper', True)
-        output = self.view.window().new_file()
-        output.set_scratch(True)
-        opt = kwargs["opt"]
-        if opt == '-p':
-            output.set_syntax_file('Packages/JavaScript/JavaScript.tmLanguage')
-        args = [opt]
-
-        if no_wrapper:
-            args = ['-b'] + args
-
-        res = brew(args, Text.get(self.view))
+    def on_done(self, res, output):
         if res["okay"] is True:
-            output.insert(edit, 0, res["out"])
+            self.view.window().open_file(self.view.file_name().split(".")[0]+'.js')
         else:
-            output.insert(edit, 0, res["err"].split("\n")[0])
+            output = self.view.window().new_file()
+            output.set_scratch(True)
+            output.set_syntax_file('Packages/JavaScript/JavaScript.tmLanguage')
+            output.run_command('update_watch', {'pos': 0, 'text': res["out"] or res["err"]})
+            sublime.status_message("Compiling done.")
+
+    def run(self, edit, **kwargs):
+        sublime.status_message("Compiling typescript...")
+        args = [self.view.file_name()]
+        run("tsc", args, callback=lambda res: self.on_done(res, edit))
 
 
 class CheckCodeSyntaxCommand(TextCommand):
     def is_enabled(self):
         return isTypescript(self.view)
 
-    def run(self, edit):
-        # args = ['-b', '-p']
-        res = brew([], Text.get(self.view))
+    def on_done(self, res):
         if res["okay"] is True:
             status = 'Valid'
         else:
             status = res["err"].split("\n")[0]
         sublime.message_dialog('Syntax %s' % status)
+        # sublime.status_message()
+
+    def run(self, edit):
+        sublime.status_message("Checking syntax...")
+        args = [self.view.file_name(), "--outDir", tempfile.gettempdir()]
+        run("tsc", args, callback=lambda res: self.on_done(res))
+
+
+class UpdateWatchCommand(sublime_plugin.TextCommand):
+    def run(self, edit, pos, text):
+        region = sublime.Region(0, self.view.size())
+        self.view.erase(edit, region)
+        self.view.insert(edit, pos, text)
 
 
 class LintCodeCommand(TextCommand):
@@ -227,14 +246,15 @@ class LintCodeCommand(TextCommand):
 
     def run(self, edit):
         filepath = self.view.file_name()
-        res = run("tsclint", args=[filepath, "--csv"])
+        res = run("tslint", args=["-f", filepath, "-c", settings_get("lintConfPath") or path.dirname(self.view.file_name())])
         error_list = []
-
         for line in res["out"].split('\n'):
-            if not len(line.split(","))-1:
+            if not len(line.split(":"))-1:
                 continue
-            lineNum = line.split(",")[1]
-            message = line.split(",")[-1]
+            # lineNum = line.split(",")[1]
+            # message = line.split(",")[-1]
+            message = line.split(":")[1][1:]
+            lineNum = line.split("[")[1].split(",")[0]
             try:
                 error_list.append({"message": message, "line": int(lineNum)-1})
             except:
@@ -311,20 +331,7 @@ class Watcher():
             })
         self.create_output()
 
-    def create_output(self):
-        self.sourceFilePath = self.inputView.file_name()
-        self.outputFileName = Tool.get_js_file_name(Tool.get_file_name(self.sourceFilePath))
-        self.outputTempDir = tempfile.gettempdir()
-        # print(self.outputTempDir)
-        self.outputFilePath = path.join(self.outputTempDir, self.outputFileName)
-
-        no_wrapper = settings_get('noWrapper', True)
-        args = []
-        if no_wrapper:
-            args = ['-b'] + args
-        args = args + ["--sourcemap", "--outDir", self.outputTempDir, self.sourceFilePath]
-
-        res = run("tsc", args)
+    def on_done(self, res):
         if not res["okay"]:
             sublime.message_dialog("Error. See console.")
             print(res["err"])
@@ -336,16 +343,6 @@ class Watcher():
         self.outputView.window().set_view_index(self.outputView, self.outputView.window().active_group(), 0)
         # self.outputView.window().focus_group(0)
         self.inputView.window().focus_view(self.inputView)
-
-    def refresh(self):
-        no_wrapper = settings_get('noWrapper', True)
-        args = ["--sourcemap", "--outDir", self.outputTempDir]
-        if no_wrapper:
-            args = ['-b'] + args
-        res = brew(args, source=Text.get(self.inputView))
-        with open(self.outputFilePath, 'w') as f:
-            f.write(res["out"])
-
         mapFile = path.join(self.outputTempDir, self.outputFileName.split(".")[0]+'.js.map')
         (inputRow, inputCol) = self.inputView.rowcol(self.inputView.sel()[0].begin())
         index = load(open(mapFile)).getpos(line=inputRow, column=inputCol)
@@ -363,6 +360,18 @@ class Watcher():
             self.outputView.run_command('move', {'by': 'characters', 'forward': False})
             self.outputView.show_at_center(region_begin)
         sublime.set_timeout(goto, 10)
+
+    def create_output(self):
+        self.sourceFilePath = self.inputView.file_name()
+        self.outputFileName = Tool.get_js_file_name(Tool.get_file_name(self.sourceFilePath))
+        self.outputTempDir = tempfile.gettempdir()
+        self.outputFilePath = path.join(self.outputTempDir, self.outputFileName)
+        args = ["--sourcemap", "--outDir", self.outputTempDir, self.sourceFilePath]
+        run("tsc", args, callback=lambda res: self.on_done(res))
+
+    def refresh(self):
+        args = ["--sourcemap", "--outDir", self.outputTempDir, self.sourceFilePath]
+        run("tsc", args, callback=lambda res: self.on_done(res))
 
     def stop(self):
         if not self.inputView.id() in watchers:
@@ -428,11 +437,7 @@ class CaptureEditing(sublime_plugin.EventListener):
         compile_on_save = settings_get('compileOnSave', True)
         if compile_on_save is True:
             print("Compiling on save...")
-            view.run_command("compile")
-            show_compile_output_on_save = settings_get('showOutputOnSave', True)
-            if show_compile_output_on_save is True and isTypescript() is True and RunScriptCommand.PANEL_IS_OPEN is True:
-                print("Updating output panel...")
-                view.run_command("compile_output")
+            view.run_command("compile_code")
 
         watch_save = settings_get('watchOnSave', True)
         if watch_save:
