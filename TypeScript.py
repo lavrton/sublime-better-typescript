@@ -38,7 +38,9 @@ def run(cmd, args=[], source="", cwd=None, env=None, callback=None):
     Will run on thread if callback function is passed.
     """
     if callback:
-        threading.Thread(target=lambda cb: cb(_run(cmd, args=args, source=source, cwd=cwd, env=env)), args=(callback,)).start()
+        thread = threading.Thread(target=lambda cb: cb(_run(cmd, args=args, source=source, cwd=cwd, env=env)), args=(callback,))
+        thread.start()
+        ThreadProgress(thread, 'Compiling', '')
     else:
         res = _run(cmd, args=args, source=source, cwd=cwd, env=env)
         return res
@@ -61,7 +63,7 @@ def _run(cmd, args=[], source="", cwd=None, env=None):
         return {"okay": okay, "out": stat[0].decode(locale.getdefaultlocale()[1]), "err": stat[1].decode(locale.getdefaultlocale()[1])}
     else:
         if env is None:
-            env = {"PATH": settings_get('binDir', '/usr/local/bin')}
+            env = {"PATH": settings_get('binDir', '/usr/bin')}
 
         # adding custom PATHs from settings
         customEnv = settings_get('envPATH', "")
@@ -78,14 +80,54 @@ def _run(cmd, args=[], source="", cwd=None, env=None):
         return {"okay": okay, "out": stat[0].decode('utf-8'), "err": stat[1].decode('utf-8')}
 
 
+class ThreadProgress():
+    """
+    Animates an indicator, [=   ], in the status area while a thread runs
+
+    :param thread:
+        The thread to track for activity
+
+    :param message:
+        The message to display next to the activity indicator
+
+    :param success_message:
+        The message to display once the thread is complete
+    """
+
+    def __init__(self, thread, message, success_message):
+        self.thread = thread
+        self.message = message
+        self.success_message = success_message
+        self.addend = 1
+        self.size = 8
+        sublime.set_timeout(lambda: self.run(0), 100)
+
+    def run(self, i):
+        if not self.thread.is_alive():
+            if hasattr(self.thread, 'result') and not self.thread.result:
+                sublime.status_message('')
+                return
+            sublime.status_message(self.success_message)
+            return
+
+        before = i % self.size
+        after = (self.size - 1) - before
+
+        sublime.status_message('%s [%s=%s]' % (self.message, ' ' * before, ' ' * after))
+
+        if not after:
+            self.addend = -1
+        if not before:
+            self.addend = 1
+        i += self.addend
+
+        sublime.set_timeout(lambda: self.run(i), 100)
+
+
 def brew(args, source, cwd=None, callback=None):
     """
     Compile command
     """
-    # if sys.platform == "win32":
-    #     args.append("-s")
-    # else:
-    #     args.append("-e")
     tempTSFile = path.join(tempfile.gettempdir(), "temp.ts")
     with open(tempTSFile, 'w') as f:
         f.write(source)
@@ -121,6 +163,34 @@ class Text():
         return Text.all(view)
 
 
+def popup_error_list(view, error_list):
+
+    panel_items = []
+
+    for error in error_list:
+        line_text = view.substr(view.full_line(view.text_point(error['line'], 0)))
+        item = [error['message'], '{0}: {1}'.format(error['line'] + 1, line_text.strip())]
+        panel_items.append(item)
+
+    def on_done(selected_item):
+        if selected_item == -1:
+            return
+
+        selected = view.sel()
+        selected.clear()
+
+        error = error_list[selected_item]
+        region_begin = view.text_point(error['line'], 0)
+
+        selected.add(sublime.Region(region_begin, region_begin))
+        # We have to force a move to update the cursor position
+        view.run_command('move', {'by': 'characters', 'forward': True})
+        view.run_command('move', {'by': 'characters', 'forward': False})
+        view.show_at_center(region_begin)
+
+    view.window().show_quick_panel(panel_items, on_done)
+
+
 class CompileCodeCommand(TextCommand):
     def is_enabled(self):
         return isTypescript(self.view)
@@ -129,9 +199,20 @@ class CompileCodeCommand(TextCommand):
         if result['okay'] is True:
             status = 'Compilation Succeeded'
         else:
-            errorFirstLine = result['err'].splitlines()[0]
-            status = 'Compilation FAILED ' + errorFirstLine
-            sublime.error_message(errorFirstLine)
+            status = 'Compilation FAILED '
+            error_list = []
+            for line in result["err"].split('\n'):
+                if not len(line.split(":"))-1:
+                    continue
+                print(line)
+                message = line.split(":")[2]
+                lineNum = line.split("(")[1].split(",")[0]
+                try:
+                    error_list.append({"message": message, "line": int(lineNum)-1})
+                except:
+                    continue
+            if len(error_list):
+                popup_error_list(self.view, error_list)
 
         later = lambda: sublime.status_message(status)
         sublime.set_timeout(later, 300)
@@ -143,8 +224,7 @@ class CompileCodeCommand(TextCommand):
         source_dir = os.path.normcase(os.path.dirname(source_file))
         compile_paths = settings_get('compilePaths')
         sourcemaps = settings_get('sourceMaps', True)
-
-        args = ['-c', source_file]
+        args = [source_file]
         if sourcemaps:
             args = ['--sourcemap'] + args
 
@@ -180,18 +260,9 @@ class CompileCodeCommand(TextCommand):
             cwd = source_dir
         else:
             cwd = None
+        later = lambda: sublime.status_message("Compiling")
+        sublime.set_timeout(later, 300)
         run("tsc", args, cwd=cwd, callback=lambda res: self.on_done(res))
-        # resulrun("tsc", args=args, cwd=cwd)
-
-        # if result['okay'] is True:
-        #     status = 'Compilation Succeeded'
-        # else:
-        #     errorFirstLine = result['err'].splitlines()[0]
-        #     status = 'Compilation FAILED ' + errorFirstLine
-        #     sublime.error_message(errorFirstLine)
-
-        # later = lambda: sublime.status_message(status)
-        # sublime.set_timeout(later, 300)
 
 
 class CompileAndDisplayCodeCommand(TextCommand):
@@ -251,8 +322,6 @@ class LintCodeCommand(TextCommand):
         for line in res["out"].split('\n'):
             if not len(line.split(":"))-1:
                 continue
-            # lineNum = line.split(",")[1]
-            # message = line.split(",")[-1]
             message = line.split(":")[1][1:]
             lineNum = line.split("[")[1].split(",")[0]
             try:
@@ -260,36 +329,9 @@ class LintCodeCommand(TextCommand):
             except:
                 continue
         if len(error_list):
-            self.popup_error_list(error_list)
+            popup_error_list(self.view, error_list)
         else:
-            sublime.message_dialog("No lint errors.")
-
-    def popup_error_list(self, error_list):
-
-        panel_items = []
-
-        for error in error_list:
-            line_text = self.view.substr(self.view.full_line(self.view.text_point(error['line'], 0)))
-            item = [error['message'], '{0}: {1}'.format(error['line'] + 1, line_text.strip())]
-            panel_items.append(item)
-
-        def on_done(selected_item):
-            if selected_item == -1:
-                return
-
-            selected = self.view.sel()
-            selected.clear()
-
-            error = error_list[selected_item]
-            region_begin = self.view.text_point(error['line'], 0)
-
-            selected.add(sublime.Region(region_begin, region_begin))
-            # We have to force a move to update the cursor position
-            self.view.run_command('move', {'by': 'characters', 'forward': True})
-            self.view.run_command('move', {'by': 'characters', 'forward': False})
-            self.view.show_at_center(region_begin)
-
-        self.view.window().show_quick_panel(panel_items, on_done)
+            sublime.status_message("No lint errors.")
 
 watchers = {}
 
@@ -438,6 +480,9 @@ class CaptureEditing(sublime_plugin.EventListener):
         if compile_on_save is True:
             print("Compiling on save...")
             view.run_command("compile_code")
+
+        if settings_get('lintOnSave', True) is True:
+            view.run_command("lint_code")
 
         watch_save = settings_get('watchOnSave', True)
         if watch_save:
