@@ -14,7 +14,7 @@ import tempfile
 from .sourcemap import load
 
 
-def settings_get(name, default=None):
+def settings_get(name, default=None):w
     # load up the plugin settings
     plugin_settings = sublime.load_settings('TypeScript.sublime-settings')
     # project plugin settings? sweet! no project plugin settings? ok, well promote plugin_settings up then
@@ -469,9 +469,8 @@ class CaptureEditing(sublime_plugin.EventListener):
         if not self.is_enabled(view):
             return
         viewID = view.id()
-        watch_modified = settings_get('watchOnModified')
         self._new_modify = True
-        if watch_modified is not False and viewID in watchers:
+        if viewID in watchers:
             self._refreshed = False
             self.handleTimeout(watchers[viewID])
 
