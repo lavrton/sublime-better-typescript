@@ -469,9 +469,8 @@ class CaptureEditing(sublime_plugin.EventListener):
         if not self.is_enabled(view):
             return
         viewID = view.id()
-        watch_modified = settings_get('watchOnModified')
         self._new_modify = True
-        if watch_modified is not False and viewID in watchers:
+        if viewID in watchers:
             self._refreshed = False
             self.handleTimeout(watchers[viewID])
 
