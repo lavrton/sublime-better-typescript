@@ -180,7 +180,7 @@ def popup_error_list(view, error_list):
         selected.clear()
 
         error = error_list[selected_item]
-        region_begin = view.text_point(error['line'], 0)
+        region_begin = view.text_point(error['line'], error['col'] or 0)
 
         selected.add(sublime.Region(region_begin, region_begin))
         # We have to force a move to update the cursor position
@@ -201,14 +201,16 @@ class CompileCodeCommand(TextCommand):
         else:
             status = 'Compilation FAILED '
             error_list = []
+            print(result["err"])
             for line in result["err"].split('\n'):
-                if not len(line.split(":"))-1:
+                if len(line.split(":")) < 3:
                     continue
-                print(line)
+
                 message = line.split(":")[2]
                 lineNum = line.split("(")[1].split(",")[0]
+                rowNum = line.split("(")[1].split(",")[1].split(")")[0]
                 try:
-                    error_list.append({"message": message, "line": int(lineNum)-1})
+                    error_list.append({"message": message, "line": int(lineNum)-1, "col": int(rowNum)})
                 except:
                     continue
             if len(error_list):
