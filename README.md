@@ -14,7 +14,7 @@
 
 ## Description
 
-This is fork of [Better CoffeeScript](https://github.com/aponxi/sublime-better-coffeescript) but adopted for work woth Typescript.
+This is fork of [Better CoffeeScript](https://github.com/aponxi/sublime-better-coffeescript) but adopted for work with Typescript.
 
 # Installation
 
