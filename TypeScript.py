@@ -1,4 +1,3 @@
-#aponxi
 import sys
 import os
 from os import path
@@ -14,7 +13,7 @@ import tempfile
 from .sourcemap import load
 
 
-def settings_get(name, default=None):w
+def settings_get(name, default=None):
     # load up the plugin settings
     plugin_settings = sublime.load_settings('TypeScript.sublime-settings')
     # project plugin settings? sweet! no project plugin settings? ok, well promote plugin_settings up then
