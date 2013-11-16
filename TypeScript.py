@@ -14,7 +14,7 @@ import tempfile
 from .sourcemap import load
 
 
-def settings_get(name, default=None):
+def settings_get(name, default=None):w
     # load up the plugin settings
     plugin_settings = sublime.load_settings('TypeScript.sublime-settings')
     # project plugin settings? sweet! no project plugin settings? ok, well promote plugin_settings up then
