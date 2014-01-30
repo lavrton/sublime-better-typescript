@@ -68,11 +68,14 @@ def _run(cmd, args=[], source="", cwd=None, env=None):
         customEnv = settings_get('envPATH', "")
         if customEnv:
             env["PATH"] = env["PATH"]+":"+customEnv
-        args += ["--module", settings_get("module")]
-        if source == "":
-            command = [cmd] + args
-        else:
+        module = settings_get("module", "")
+        if module:
+            args += ["--module", module]
+        if source :
             command = [cmd] + args + [source]
+        else:
+            command = [cmd] + args
+        
         proc = Popen(command, env=env, cwd=cwd, stdout=PIPE, stderr=PIPE)
         stat = proc.communicate()
         okay = proc.returncode == 0
