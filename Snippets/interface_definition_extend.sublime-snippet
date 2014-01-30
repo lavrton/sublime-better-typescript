@@ -1,0 +1,11 @@
+<snippet>
+    <content><![CDATA[
+interface ${1:interface_name} extend ${2:other_interfaces}{
+    ${3:// methods}
+}
+]]></content>
+    <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+    <tabTrigger>interface-extend</tabTrigger>
+    <!-- Optional: Set a scope to limit where the snippet will trigger -->
+    <scope>source.ts</scope>
+</snippet>

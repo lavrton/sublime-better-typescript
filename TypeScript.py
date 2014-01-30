@@ -204,10 +204,13 @@ class CompileCodeCommand(TextCommand):
             for line in result["err"].split('\n'):
                 if len(line.split(":")) < 3:
                     continue
-
-                message = line.split(":")[2]
-                lineNum = line.split("(")[1].split(",")[0]
-                rowNum = line.split("(")[1].split(",")[1].split(")")[0]
+                try:
+                    message = line.split(":")[2]
+                    lineNum = line.split("(")[1].split(",")[0]
+                    rowNum = line.split("(")[1].split(",")[1].split(")")[0]
+                except:
+                    print("Cannot parse: " + line)
+                    continue
                 try:
                     error_list.append({"message": message, "line": int(lineNum)-1, "col": int(rowNum)})
                 except:
@@ -410,6 +413,7 @@ class Watcher():
         self.outputTempDir = tempfile.gettempdir()
         self.outputFilePath = path.join(self.outputTempDir, self.outputFileName)
         args = ["--sourcemap", "--outDir", self.outputTempDir, self.sourceFilePath]
+        print(args)
         run("tsc", args, callback=lambda res: self.on_done(res))
 
     def refresh(self):

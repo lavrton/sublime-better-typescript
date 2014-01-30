@@ -38,7 +38,7 @@
 			<key>comment</key>
 			<string>Match variable type keywords</string>
 			<key>match</key>
-			<string>\b(string|bool|number)\b</string>
+			<string>\b(string|bool|number|any|Function)\b</string>
 			<key>name</key>
 			<string>storage.type.variable.ts</string>
 		</dict>
@@ -65,6 +65,35 @@
 			<string>\b(constructor|declare|interface|as|AS)\b</string>
 			<key>name</key>
 			<string>keyword.operator.ts</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>storage.type.class.ts</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.type.class.ts</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.control.inheritance.ts</string>
+				</dict>
+				<key>4</key>
+				<dict>
+					<key>name</key>
+					<string>entity.other.inherited-class.ts</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>(class\b)\s+([a-zA-Z\$_][\w\.]*)?(?:\s+(extends)\s+([a-zA-Z\$\._][\w\.]*))?(\s+{)?</string>
+			<key>name</key>
+			<string>meta.class.ts</string>
 		</dict>
 		<dict>
 			<key>captures</key>

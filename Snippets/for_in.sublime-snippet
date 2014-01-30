@@ -1,0 +1,11 @@
+<snippet>
+    <content><![CDATA[
+for (var ${1:loop_var} in ${2:iterate_on}){
+    ${3:// TODO: Implement for loop}
+}
+]]></content>
+    <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+    <tabTrigger>for-in</tabTrigger>
+    <!-- Optional: Set a scope to limit where the snippet will trigger -->
+    <scope>source.ts</scope>
+</snippet>

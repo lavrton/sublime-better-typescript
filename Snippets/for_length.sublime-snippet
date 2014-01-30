@@ -1,0 +1,11 @@
+<snippet>
+    <content><![CDATA[
+for (var i = 0, var max = ${1:var_length}; i < max; i++){
+    ${2:// TODO: Implement for loop}
+}
+]]></content>
+    <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+    <tabTrigger>for-length</tabTrigger>
+    <!-- Optional: Set a scope to limit where the snippet will trigger -->
+    <scope>source.ts</scope>
+</snippet>

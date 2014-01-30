@@ -1,0 +1,11 @@
+{
+    "cmd": ["tsc","$file", "-m", "amd", "--sourceMap"],
+    "file_regex": "(.*\\.ts?)\\s\\(([0-9]+)\\,([0-9]+)\\)\\:\\s(...*?)$",
+    "selector": "source.ts",
+    "osx": {
+       "path": "/usr/local/bin:/opt/local/bin"
+    },
+    "windows": {
+        "cmd": ["tsc.cmd", "$file", "-m", "amd"]
+    }
+}

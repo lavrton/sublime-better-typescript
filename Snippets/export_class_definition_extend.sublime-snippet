@@ -1,0 +1,16 @@
+<snippet>
+    <content><![CDATA[
+export class ${1:class_name} extends ${2:class_to_extends} {
+    
+    constructor(${3: parameters}) {
+        super();
+
+        ${4: // Content}
+    }
+}
+]]></content>
+    <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+    <tabTrigger>class-export-extend</tabTrigger>
+    <!-- Optional: Set a scope to limit where the snippet will trigger -->
+    <scope>source.ts</scope>
+</snippet>
