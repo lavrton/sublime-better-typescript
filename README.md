@@ -97,9 +97,7 @@ Context menu has `Compile Output` that compiles the current TypeScript and outpu
 - Use `TAB` and `shift+TAB` to cycle forward/backward through fields.
 - Use `ESC` to exit snippet mode.
 
-### Snippet Triggers
-
-Not snippets for now. Wait in new version.
+Thanks @MattSeen to provide Snippets (https://github.com/MattSeen/Sublime-TypeScript-Snippets)
 
 # Settings
 
