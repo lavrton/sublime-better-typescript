@@ -30,6 +30,23 @@ def settings_get(name, default=None):
     setting = project_settings.get(name, plugin_settings.get(name, default))
     return setting
 
+def program_available(program):
+    
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return True
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return True
+
+    return None
 
 def run(cmd, args=[], source="", cwd=None, env=None, callback=None):
     """
@@ -317,6 +334,9 @@ class LintCodeCommand(TextCommand):
         return isTypescript(self.view)
 
     def run(self, edit):
+        if not program_available("tslint"):
+            return
+
         filepath = self.view.file_name()
         res = run("tslint", args=["-f", filepath, "-c", settings_get("lintConfPath") or path.dirname(self.view.file_name())])
         error_list = []
