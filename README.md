@@ -15,6 +15,7 @@
 ## Description
 
 This is fork of [Better CoffeeScript](https://github.com/aponxi/sublime-better-coffeescript) but adopted for work with Typescript.
+Also look at this TypeScript plugin for Sublime Text https://github.com/Railk/T3S. It is really awesome.
 
 # Installation
 
