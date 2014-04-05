@@ -88,11 +88,14 @@ def _run(cmd, args=[], source="", cwd=None, env=None):
         module = settings_get("module", "")
         if module:
             args += ["--module", module]
+        target = settings_get("target", "ES3")
+        if target:
+            args += ["--target", target]
         if source :
             command = [cmd] + args + [source]
         else:
             command = [cmd] + args
-        
+
         proc = Popen(command, env=env, cwd=cwd, stdout=PIPE, stderr=PIPE)
         stat = proc.communicate()
         okay = proc.returncode == 0

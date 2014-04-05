@@ -67,4 +67,5 @@
   		instead of the javascript that's being evaluated
 	*/
 , "sourceMaps":false
+, "target" : "ES3"
 }
