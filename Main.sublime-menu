@@ -34,6 +34,14 @@
                                 "caption": "Key Bindings – Default"
                             },
                             {
+                                "caption": "Key Bindings – User",
+                                "command": "open_file", "args":
+                                {
+                                    "file": "${packages}/User/Default (Windows).sublime-keymap",
+                                    "platform": "Windows"
+                                }
+                            },
+                            {
                                 "command": "open_file",
                                 "args": {
                                     "file": "${packages}/Better TypeScript/Keymaps/Default (OSX).sublime-keymap",
@@ -42,12 +50,28 @@
                                 "caption": "Key Bindings – Default"
                             },
                             {
+                                "caption": "Key Bindings – User",
+                                "command": "open_file", "args":
+                                {
+                                    "file": "${packages}/User/Default (OSX).sublime-keymap",
+                                    "platform": "OSX"
+                                }
+                            },
+                            {
                                 "command": "open_file",
                                 "args": {
                                     "file": "${packages}/Better TypeScript/Keymaps/Default (Linux).sublime-keymap",
                                     "platform": "Linux"
                                 },
                                 "caption": "Key Bindings – Default"
+                            },
+                            {
+                                "caption": "Key Bindings – User",
+                                "command": "open_file", "args":
+                                {
+                                    "file": "${packages}/User/Default (Linux).sublime-keymap",
+                                    "platform": "Linux"
+                                }
                             },
                             { "caption": "-" }
                         ]

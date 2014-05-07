@@ -95,7 +95,7 @@ def _run(cmd, args=[], source="", cwd=None, env=None):
             command = [cmd] + args + [source]
         else:
             command = [cmd] + args
-
+        print(command)
         proc = Popen(command, env=env, cwd=cwd, stdout=PIPE, stderr=PIPE)
         stat = proc.communicate()
         okay = proc.returncode == 0
@@ -336,33 +336,6 @@ class UpdateWatchCommand(sublime_plugin.TextCommand):
         self.view.erase(edit, region)
         self.view.insert(edit, pos, text)
 
-
-class LintCodeCommand(TextCommand):
-
-    def is_enabled(self):
-        return isTypescript(self.view)
-
-    def run(self, edit):
-        if not program_available("tslint"):
-            return
-
-        filepath = self.view.file_name()
-        res = run("tslint", args=["-f", filepath, "-c", settings_get("lintConfPath") or path.dirname(self.view.file_name())])
-        error_list = []
-        for line in res["out"].split('\n'):
-            if not len(line.split(":"))-1:
-                continue
-            message = line.split(":")[1][1:]
-            lineNum = line.split("[")[1].split(",")[0]
-            try:
-                error_list.append({"message": message, "line": int(lineNum)-1})
-            except:
-                continue
-        if len(error_list):
-            popup_error_list(self.view, error_list)
-        else:
-            sublime.status_message("No lint errors.")
-
 watchers = {}
 
 
@@ -415,14 +388,13 @@ class Watcher():
         self.outputView.window().set_view_index(self.outputView, self.outputView.window().active_group(), 0)
         # self.outputView.window().focus_group(0)
         self.inputView.window().focus_view(self.inputView)
-        mapFile = path.join(self.outputTempDir, self.outputFileName.split(".")[0]+'.js.map')
+        mapFile = self.sourceFilePath.split(".")[0]+'.js.map'
         (inputRow, inputCol) = self.inputView.rowcol(self.inputView.sel()[0].begin())
         index = load(open(mapFile)).getpos(line=inputRow, column=inputCol)
         if not index:
             return
         (row, col) = index
         row = int(row)
-
         def goto():
             selected = self.outputView.sel()
             selected.clear()
@@ -436,14 +408,12 @@ class Watcher():
     def create_output(self):
         self.sourceFilePath = self.inputView.file_name()
         self.outputFileName = Tool.get_js_file_name(Tool.get_file_name(self.sourceFilePath))
-        self.outputTempDir = tempfile.gettempdir()
-        self.outputFilePath = path.join(self.outputTempDir, self.outputFileName)
-        args = ["--sourcemap", "--outDir", self.outputTempDir, self.sourceFilePath]
-        print(args)
+        self.outputFilePath = path.join(path.dirname(self.sourceFilePath), self.outputFileName)
+        args = ["--sourcemap", self.sourceFilePath]
         run("tsc", args, callback=lambda res: self.on_done(res))
 
     def refresh(self):
-        args = ["--sourcemap", "--outDir", self.outputTempDir, self.sourceFilePath]
+        args = ["--sourcemap", self.sourceFilePath]
         run("tsc", args, callback=lambda res: self.on_done(res))
 
     def stop(self):
