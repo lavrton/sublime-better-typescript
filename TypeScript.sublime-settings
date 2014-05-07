@@ -7,7 +7,7 @@
 		"envPATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 	*/
-	"envPATH": "",
+	"envPATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
 	/*
 		The directory containing your tsc binary. Usually
 		/usr/local/bin or /usr/bin.
