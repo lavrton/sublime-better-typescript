@@ -66,5 +66,5 @@
 	*/
   	"sourceMaps":false,
 	"target" : "ES3",
-	"noImplicityAny" : false
+	"noImplicitAny" : false
 }

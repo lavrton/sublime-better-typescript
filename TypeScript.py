@@ -94,9 +94,9 @@ def _run(cmd, args=[], source="", cwd=None, env=None):
         if target:
             args += ["--target", target]
 
-        noImplicityAny = settings_get("noImplicityAny", False)
-        if noImplicityAny:
-            args += ["--noImplicityAny"]
+        noImplicitAny = settings_get("noImplicitAny", False)
+        if noImplicitAny:
+            args += ["--noImplicitAny"]
 
         if source :
             command = [cmd] + args + [source]
