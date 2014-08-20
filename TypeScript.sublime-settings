@@ -12,16 +12,16 @@
 		The directory containing your tsc binary. Usually
 		/usr/local/bin or /usr/bin.
 	*/
-	"binDir": "/usr/bin"
+	"binDir": "/usr/bin",
 	/*
 		Enable or disable refresh the compiled Output on Save.
 		Only available for watch mode.
 	*/
-,	"watchOnSave": true
+	"watchOnSave": true,
 	/*
 		Enable Compiling on save. It will compile into the same folder.
 	*/
-,	"compileOnSave": false
+	"compileOnSave": false,
 	/*
 		## Enable compiling to a specific directory.
 		#### Description
@@ -36,7 +36,7 @@
 			compileDir": "/home/logan/Desktop/out"
 
 	*/
-,	"compileDir": false
+	"compileDir": false,
 	/*
 		## Enable compiling to a specific relative directories.
 
@@ -58,14 +58,13 @@
 			"/home/user/projects/main.tsc" will compile to "/home/user/projects/js/main.js"
 
 	*/
-,	"compilePaths": false
+	"compilePaths": false,
 
+	/* COMPILE OPTIONS */
 	/*
 		## Enable source maps support
-  		CoffeeScript 1.6.1 and above include support for better tscscript debugging.
-  		Browsers that support it can trace your bugs to your original tscscript source code,
-  		instead of the javascript that's being evaluated
 	*/
-, "sourceMaps":false
-, "target" : "ES3"
+  	"sourceMaps":false,
+	"target" : "ES3",
+	"noImplicityAny" : false
 }

@@ -85,12 +85,19 @@ def _run(cmd, args=[], source="", cwd=None, env=None):
         customEnv = settings_get('envPATH', "")
         if customEnv:
             env["PATH"] = env["PATH"]+":"+customEnv
+
         module = settings_get("module", "")
         if module:
             args += ["--module", module]
+
         target = settings_get("target", "ES3")
         if target:
             args += ["--target", target]
+
+        noImplicityAny = settings_get("noImplicityAny", False)
+        if noImplicityAny:
+            args += ["--noImplicityAny"]
+
         if source :
             command = [cmd] + args + [source]
         else:
