@@ -65,6 +65,19 @@ def run(cmd, args=[], source="", cwd=None, env=None, callback=None):
 def _run(cmd, args=[], source="", cwd=None, env=None):
     if not type(args) is list:
         args = [args]
+
+    module = settings_get("module", "")
+    if module:
+        args += ["--module", module]
+
+    target = settings_get("target", "ES3")
+    if target:
+        args += ["--target", target]
+
+    noImplicitAny = settings_get("noImplicitAny", False)
+    if noImplicitAny:
+        args += ["--noImplicitAny"]
+
     if sys.platform == "win32":
         args = [cmd] + args
         if sys.version_info[0] == 2:
@@ -85,18 +98,6 @@ def _run(cmd, args=[], source="", cwd=None, env=None):
         customEnv = settings_get('envPATH', "")
         if customEnv:
             env["PATH"] = env["PATH"]+":"+customEnv
-
-        module = settings_get("module", "")
-        if module:
-            args += ["--module", module]
-
-        target = settings_get("target", "ES3")
-        if target:
-            args += ["--target", target]
-
-        noImplicitAny = settings_get("noImplicitAny", False)
-        if noImplicitAny:
-            args += ["--noImplicitAny"]
 
         if source :
             command = [cmd] + args + [source]
