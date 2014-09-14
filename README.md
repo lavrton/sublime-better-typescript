@@ -24,14 +24,14 @@ Current package don't have sublime build file. You can create it by yourself and
 
 ```
 {
-    "cmd": ["tsc","$file", "-m", "amd", "--sourceMap"],
+    "cmd": ["tsc", "-d", "-m", "amd", "--sourcemap", "$file"],
     "file_regex": "(.*\\.ts?)\\s\\(([0-9]+)\\,([0-9]+)\\)\\:\\s(...*?)$",
     "selector": "source.ts",
     "osx": {
        "path": "/usr/local/bin:/opt/local/bin"
     },
     "windows": {
-        "cmd": ["tsc.cmd", "$file", "-m", "amd"]
+        "cmd": ["tsc.cmd", "-d", "-m", "amd", "--sourcemap", "$file"]
     }
 }
 ```
@@ -44,7 +44,6 @@ You can access the commands either using the command palette (`ctrl+shift+P` or 
 	alt+shift+c - Compile a file
 	alt+shift+d - Display compiled JavaScript
 	alt+shift+w - Toggle watch mode
-	alt+shift+p - Toggle output panel
 
 
 Context menu has `Compile Output` that compiles the current TypeScript and outputs the javascript code that is run, in a panel.

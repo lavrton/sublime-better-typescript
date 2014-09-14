@@ -442,7 +442,7 @@ class Watcher():
             })
 
 
-class ToggleWatchMode(TextCommand):
+class ToggleWatchModeCommand(TextCommand):
     views = {}
     outputs = {}
 
