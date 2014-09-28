@@ -1,6 +1,26 @@
 [
-    {
-      "command": "run_script",
-      "caption": "Run Script / Selection"
-    }
+  {
+    "caption": "Better TypeScript",
+    "children": [
+      {
+        "caption": "Check Syntax",
+        "command": "check_code_syntax"
+      },
+      {
+        "caption": "Compile File",
+        "command": "compile_code"
+      },
+      {
+        "caption": "Compile and Display JavaScript",
+        "command": "compile_and_display_code",
+        "args": {
+          "opt": "-p"
+        }
+      },
+      {
+        "caption": "Toggle Watch Mode",
+        "command": "toggle_watch_mode"
+      }
+    ]
+  }
 ]
