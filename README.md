@@ -3,7 +3,7 @@ Better Typescript
 
 # Overview
 
-**This package is for Sublime Text 3**.
+**This plugin is deprecated. Use [Official Type​Script plugin](https://packagecontrol.io/packages/TypeScript) instead.**.
 
 ## Description
 
