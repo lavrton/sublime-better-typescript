@@ -1,4 +1,5 @@
 {
     "install": "README.md",
-    "0.9": "changelogs/0.9.md"
+    "0.9": "changelogs/0.9.md",
+    "0.9.1": "changelogs/0.9.1.md"
 }
